@@ -1,12 +1,3 @@
-/*
- * HIZLI ÇİZGİ İZLEYEN ROBOT - PID KONTROLÜ
- * Donanım: Arduino Uno/Mega + L298N + QTR-8A + 12V 5000RPM Motor
- * 
- * PID BAŞLANGIÇ DEĞERLERİ:
- *   Kp = 0.12  → Düz yolda kayıyorsa artır
- *   Kd = 1.8   → Titreme varsa artır (Kp'nin ~15 katı)
- *   Ki = 0.0   → Yarışmada sıfır tut
- */
 
 #include <QTRSensors.h>
 
@@ -14,6 +5,7 @@
 #define ENA  5    // Sol motor PWM (Timer pini olmalı)
 #define IN1  4    // Sol motor yön
 #define IN2  3    // Sol motor yön
+
 #define ENB  6    // Sağ motor PWM (Timer pini olmalı)
 #define IN3  7    // Sağ motor yön
 #define IN4  8    // Sağ motor yön
@@ -25,17 +17,17 @@ uint16_t sensorDegerleri[SENSOR_COUNT];
 
 // ─── PID PARAMETRELERİ ────────────────────────────────────────────
 // 5000RPM motor için optimize edilmiş başlangıç değerleri
-// 12V @ L298N → Gerçek PWM çıkışı yaklaşık 10.5-11V olur (düşüş var)
-float Kp = 0.12;
-float Kd = 1.80;    // Kp × 15
-float Ki = 0.00;    // Yarışmada SIFIR tut
+// 12V L298N → Gerçek PWM çıkışı yaklaşık 10.5-11V olur (düşüş var)
+float Kp = 0.07;
+float Kd = 0.8;    // Kp × 15
+float Ki = 0.0001;    // Yarışmada SIFIR tut
 
 // ─── HIZ AYARLARI ────────────────────────────────────────────────
 // L298N + 12V 5000RPM → Başlangıçta 70-80% PWM ile çalış
 // 255 = tam gaz, yarışmada 180-210 bandından başla
-int BASE_HIZ    = 190;   // Düz yol ana hızı (0-255)
-int MAX_HIZ     = 220;   // Maksimum hız limiti
-int MIN_HIZ     = 0;     // Minimum (negatif = aktif fren)
+int BASE_HIZ    = 55;   // Düz yol ana hızı (0-255)
+int MAX_HIZ     = 110;   // Maksimum hız limiti
+int MIN_HIZ     = -40;     // Minimum (negatif = aktif fren)
 
 // ─── DEĞİŞKENLER ─────────────────────────────────────────────────
 int oncekiHata  = 0;
@@ -51,11 +43,9 @@ void setup() {
   // QTR-8A sensör konfigürasyonu
   qtr.setTypeAnalog();
   qtr.setSensorPins((const uint8_t[]){A0, A1, A2, A3, A4, A5, A6, A7}, SENSOR_COUNT);
-  qtr.setEmitterPin(2);  // IR LED pin (opsiyonel, bağlıysa kullan)
 
   // ── KALİBRASYON ──────────────────────────────────────────────
   // Robot pist üzerinde ileri-geri dönerken 400 örnek alır
-  // YARIŞMA ÖNCESİ PİSTTE ÇALIŞTIR!
   delay(500);
   for (int i = 0; i < 400; i++) {
     // Kalibrasyon sırasında robotu yavaşça sağa-sola sür
