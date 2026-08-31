@@ -3,4 +3,5 @@
 * But I uploded code file so you can check out anyway.
 
 # Ekran Görüntüsü : 
- ![ekran görüntüsü](/code-screenshot.png)
+
+![ekran görüntüsü](/code-screenshot.png)
