@@ -4,4 +4,4 @@
 
 # Ekran Görüntüsü : 
 
-![ekran görüntüsü](/code-screenshot.png)
+![ekran görüntüsü](code-screenshot.png)
